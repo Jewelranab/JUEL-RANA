@@ -1,0 +1,5 @@
+{
+  "name": "Dynamic Mosque Dashboard",
+  "description": "A real-time prayer times display with geolocation support, featuring Hijri date, Sehri/Iftar times, and next prayer indicators.",
+  "requestFramePermissions": ["geolocation"]
+}
