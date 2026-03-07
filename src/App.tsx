@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { CalculationMethod, Coordinates, PrayerTimes } from 'adhan';
 import moment from 'moment';
 import 'moment-hijri';
-import { Clock, MapPin, Calendar, Info, Utensils, Moon, Languages } from 'lucide-react';
+import { Clock, MapPin, Calendar, Info, Utensils, Moon, Sun, Languages } from 'lucide-react';
 
 // Fallback Coordinates (London)
 const DEFAULT_COORDS = new Coordinates(51.5074, -0.1278);
@@ -125,7 +125,8 @@ export default function App() {
   const [now, setNow] = useState(new Date());
   const [coords, setCoords] = useState<Coordinates>(DEFAULT_COORDS);
   const [selectedDistrict, setSelectedDistrict] = useState<string>('Dhaka');
-  const [lang, setLang] = useState<'bn' | 'en'>('bn');
+  const [lang, setLang] = useState<'bn' | 'en'>('en');
+  const [isDark, setIsDark] = useState<boolean>(false);
 
   const t = translations[lang];
 
@@ -194,15 +195,28 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] flex flex-col font-sans text-[#1A1A1A]">
+    <div className={`min-h-screen flex flex-col transition-colors duration-300 relative ${isDark ? 'islamic-pattern-dark text-white' : 'islamic-pattern text-[#1A1A1A]'}`}>
+      {/* Dome Borders */}
+      <div className="dome-border-left hidden sm:block" />
+      <div className="dome-border-right hidden sm:block" />
+
       {/* Header Section */}
-      <header className="bg-[#151619] text-white p-4 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden">
+      <header className={`${isDark ? 'bg-[#090A0C]/90' : 'bg-[#151619]/90'} backdrop-blur-md text-white p-4 sm:p-8 flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-300 border-b border-[#D4AF37]/30`}>
+        <div className="dome-top-decoration" />
         <div className="absolute inset-0 opacity-5 pointer-events-none">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent"></div>
         </div>
 
         {/* Controls */}
         <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
+          <button 
+            onClick={() => setIsDark(!isDark)}
+            className="flex items-center justify-center bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors text-white"
+            title={isDark ? "Light Mode" : "Dark Mode"}
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
           <select 
             value={selectedDistrict}
             onChange={(e) => setSelectedDistrict(e.target.value)}
@@ -232,7 +246,7 @@ export default function App() {
             </div>
           </div>
 
-          <h1 className="text-6xl sm:text-8xl md:text-[10rem] font-bold leading-none tracking-tighter mb-4 tabular-nums text-center">
+          <h1 className={`text-6xl sm:text-8xl md:text-[10rem] font-bold leading-none tracking-tighter mb-4 tabular-nums text-center ${isDark ? 'text-[#D4AF37] drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]' : 'text-white drop-shadow-lg'}`}>
             {formatTime(now, true)}
           </h1>
           
@@ -251,31 +265,31 @@ export default function App() {
         {/* Left Column: Sehri/Iftar & Stats */}
         <div className="lg:col-span-1 flex flex-col gap-4 sm:gap-6">
           {/* Sehri & Iftar Card */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border border-black/5 p-4 sm:p-6 flex flex-col gap-4 sm:gap-6">
-            <h3 className="text-base sm:text-lg font-bold text-[#2D1B1B] border-b pb-2 flex items-center gap-2">
+          <div className={`${isDark ? 'bg-[#1A1C21]/80 border-white/10' : 'bg-white/80 border-[#D4AF37]/20'} backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden border p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 transition-colors duration-300`}>
+            <h3 className={`text-base sm:text-lg font-bold border-b pb-2 flex items-center gap-2 ${isDark ? 'text-white border-white/10' : 'text-[#2D1B1B] border-[#D4AF37]/20'}`}>
               <Utensils size={18} className="text-[#4CAF50]" />
               {t.sehriIftar}
             </h3>
             
             <div className="flex flex-col gap-3 sm:gap-4">
-              <div className="flex justify-between items-center bg-[#FDF8F0] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#F2E8D5]">
+              <div className={`flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-colors duration-300 ${isDark ? 'bg-white/5 border-white/10' : 'bg-[#FDF8F0] border-[#F2E8D5]'}`}>
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-                    <Moon size={16} className="text-[#2D1B1B]" />
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-sm ${isDark ? 'bg-[#2D1B1B]' : 'bg-white'}`}>
+                    <Moon size={16} className={isDark ? 'text-[#D4AF37]' : 'text-[#2D1B1B]'} />
                   </div>
                   <div>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t.sehriEnd}</p>
-                    <p className="text-base sm:text-xl font-bold text-[#2D1B1B]">{t.sehri}</p>
+                    <p className={`text-base sm:text-xl font-bold ${isDark ? 'text-white' : 'text-[#2D1B1B]'}`}>{t.sehri}</p>
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-[#2D1B1B] tabular-nums">
+                <div className={`text-2xl sm:text-3xl font-bold tabular-nums ${isDark ? 'text-white' : 'text-[#2D1B1B]'}`}>
                   {formatTime(sehri)}
                 </div>
               </div>
 
-              <div className="flex justify-between items-center bg-[#F0F9F1] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#D5F2D8]">
+              <div className={`flex justify-between items-center p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-colors duration-300 ${isDark ? 'bg-[#4CAF50]/10 border-[#4CAF50]/20' : 'bg-[#F0F9F1] border-[#D5F2D8]'}`}>
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-sm ${isDark ? 'bg-[#1A1C21]' : 'bg-white'}`}>
                     <Utensils size={16} className="text-[#4CAF50]" />
                   </div>
                   <div>
@@ -293,8 +307,8 @@ export default function App() {
 
         {/* Right Column: Prayer Times Table */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-black/5">
-            <div className="grid grid-cols-3 bg-[#2D1B1B] text-white/50 text-[10px] sm:text-xs font-bold tracking-[0.1em] sm:tracking-[0.2em] py-3 sm:py-4 px-4 sm:px-10 uppercase">
+          <div className={`${isDark ? 'bg-[#1A1C21]/80 border-white/10' : 'bg-white/80 border-[#D4AF37]/20'} backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border transition-colors duration-300`}>
+            <div className={`grid grid-cols-3 text-[10px] sm:text-xs font-bold tracking-[0.1em] sm:tracking-[0.2em] py-3 sm:py-4 px-4 sm:px-10 uppercase ${isDark ? 'bg-[#090A0C]/90 text-white/40' : 'bg-[#2D1B1B]/90 text-white/50'}`}>
               <div className="flex items-center gap-1 sm:gap-2">
                  <Info size={12} />
                  <span>{t.prayer}</span>
@@ -303,16 +317,22 @@ export default function App() {
               <div className="text-right">{t.iqamah}</div>
             </div>
 
-            <div className="divide-y divide-black/5">
+            <div className={`divide-y ${isDark ? 'divide-white/5' : 'divide-black/5'}`}>
               {prayers.map((prayer, idx) => (
                 <div 
                   key={prayer.name}
-                  className={`grid grid-cols-3 items-center py-4 sm:py-6 px-4 sm:px-10 transition-colors duration-500 ${
-                    idx === nextIndex ? 'bg-[#FDF8F0]' : 'hover:bg-gray-50'
+                  className={`grid grid-cols-3 items-center py-4 sm:py-6 px-4 sm:px-10 transition-all duration-300 ${
+                    idx === nextIndex 
+                      ? (isDark ? 'bg-white/5' : 'bg-[#FDF8F0]') 
+                      : (isDark ? 'hover:bg-white/[0.02]' : 'hover:bg-gray-50')
                   }`}
                 >
                   <div className="flex items-center gap-2 sm:gap-4">
-                    <span className={`text-xl sm:text-3xl font-bold tracking-tight ${idx === nextIndex ? 'text-[#2D1B1B]' : 'text-gray-400'}`}>
+                    <span className={`text-xl sm:text-3xl font-bold tracking-tight ${
+                      idx === nextIndex 
+                        ? (isDark ? 'text-[#D4AF37]' : 'text-[#2D1B1B]') 
+                        : (isDark ? 'text-gray-600' : 'text-gray-400')
+                    }`}>
                       {prayer.name}
                     </span>
                     {idx === nextIndex && (
@@ -321,10 +341,10 @@ export default function App() {
                       </span>
                     )}
                   </div>
-                  <div className="text-center text-2xl sm:text-4xl font-light text-gray-500 tabular-nums">
+                  <div className={`text-center text-2xl sm:text-4xl font-light tabular-nums ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                     {formatTime(prayer.start)}
                   </div>
-                  <div className="text-right text-2xl sm:text-4xl font-bold text-[#1A1A1A] tabular-nums">
+                  <div className={`text-right text-2xl sm:text-4xl font-bold tabular-nums ${isDark ? 'text-white' : 'text-[#1A1A1A]'}`}>
                     {formatTime(prayer.iqamah)}
                   </div>
                 </div>
